@@ -1,13 +1,28 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 
 const VerticalCarousel = () => {
   const items = Array.from({ length: 10 }, (_, i) => i); // Array of indices [0-9]
   const containerRef = useRef(null);
+  const [itemHeight, setItemHeight] = useState(0);
 
   useEffect(() => {
     const container = containerRef.current;
+
+    const updateItemHeight = () => {
+      const screenHeight = window.innerHeight;
+      const newItemHeight = Math.floor(screenHeight / 2.8);
+      setItemHeight(newItemHeight);
+    };
+
+    updateItemHeight(); // Initial calculation
+
+    const handleResize = () => {
+      updateItemHeight();
+    };
+
+    window.addEventListener("resize", handleResize);
+
     const items = Array.from(container.children); // Get all item elements
-    const totalItems = items.length;
 
     // Function to reset scroll position to simulate infinite scroll
     const handleScroll = () => {
@@ -31,7 +46,7 @@ const VerticalCarousel = () => {
     });
 
     // Set initial scroll position to the middle of the container
-    container.scrollTop = container.scrollHeight / 2;
+    container.scrollTop = container.scrollHeight / 3;
 
     // Attach the scroll event listener
     container.addEventListener("scroll", handleScroll);
@@ -39,16 +54,18 @@ const VerticalCarousel = () => {
     // Cleanup on unmount
     return () => {
       container.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
   return (
-    <div ref={containerRef} className="h-screen overflow-y-scroll">
+    <div ref={containerRef} className="h-screen overflow-y-scroll no-scrollbar">
       <div className="flex flex-col items-center justify-center w-full">
         {items.map((item, index) => (
           <div
             key={index}
-            className="w-[300px] h-[300px] my-5 flex items-center justify-center bg-blue-500 text-white text-xl"
+            className="w-full m-5 flex items-center justify-center bg-blue-500 text-white text-xl"
+            style={{ height: `${itemHeight}px` }}
           >
             Item {item}
           </div>
